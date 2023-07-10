@@ -1,4 +1,4 @@
-FROM golang:1.18
+FROM golang:1.20.5-alpine3.18
 
 ARG WORKDIR=/go/app
 
@@ -10,4 +10,4 @@ WORKDIR $WORKDIR
 
 VOLUME ["$WORKDIR"]
 
-CMD ["/bin/bash"]
+CMD ["/bin/ash"]
