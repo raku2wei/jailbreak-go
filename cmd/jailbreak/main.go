@@ -32,18 +32,23 @@ func main() {
 		d := dungeon.Create(*p)
 
 		// ゲームループ：勝利条件を満たすまで続く
-		for {
-			d.Display() // 部屋の様子を表示
-			if d.CheckEvent() {
-				// ゲームクリア
-				event.GameClear()
-				break
+		GameLoop:
+			for {
+				d.Display() // 部屋の様子を表示
+
+				switch d.CheckEvent() {
+				case event.GameClearEvent:
+					event.GameClear()
+					break GameLoop
+				case event.GameOverEvent:
+					event.GameOver()
+					break GameLoop
+				}
+
+				d.WaitAction() // ユーザーから行動を入力してもらい、移動または方向転換を行う
+				fmt.Printf("\n")
+
+				time.Sleep(400 * time.Millisecond) // 0.4秒停止
 			}
-
-			d.WaitAction() // ユーザーから行動を入力してもらい、移動または方向転換を行う
-			fmt.Printf("\n")
-
-			time.Sleep(400 * time.Millisecond) // 0.4秒停止
-		}
 	}
 }

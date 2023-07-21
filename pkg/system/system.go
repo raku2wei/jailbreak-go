@@ -1,6 +1,7 @@
 package system
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -42,4 +43,22 @@ func PrintFile(path string) {
 	}
 
 	fmt.Println(string(bytes))
+}
+
+func LoadLineText(path string, line int) string {
+	fp, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer fp.Close() 
+
+	scanner := bufio.NewScanner(fp)
+	n := 1
+	for scanner.Scan() { // 1行ずつ読み込み
+		if n == line {
+			return scanner.Text()
+		}
+		n++
+	}
+	return ""
 }

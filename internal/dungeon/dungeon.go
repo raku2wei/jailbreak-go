@@ -2,6 +2,8 @@ package dungeon
 
 import (
 	"fmt"
+	"jailbreak/internal/enemy"
+	"jailbreak/internal/event"
 	"jailbreak/internal/player"
 	"jailbreak/internal/room"
 	"jailbreak/pkg/system"
@@ -17,6 +19,7 @@ type Dungeon struct {
 	rooms    [7][5]room.Room
 	player   player.Player // ダンジョン内にいるプレイヤー
 	moveRoom bool          // プレイヤーが部屋を移動したかどうか（イベントチェック用）
+	encounterRate float32
 }
 
 // ダンジョン生成（初期化）
@@ -109,6 +112,9 @@ func Create(p player.Player) *Dungeon {
 	//罠(強制ワープ)部屋を設置
 	d.rooms[6][2].IsWana = true
 
+	// エンカウント率初期化
+	d.encounterRate = DefaultEncounterRate
+
 	return d
 }
 
@@ -119,8 +125,7 @@ func (d *Dungeon) Display() {
 	d.currentRoom().Display(dir)
 }
 
-// ゴールしたらtrueを返す
-func (d *Dungeon) CheckEvent() bool {
+func (d *Dungeon) CheckEvent() event.Event {
 
 	fmt.Printf("\n")
 
@@ -133,11 +138,21 @@ func (d *Dungeon) CheckEvent() bool {
 			// 罠を起動
 			d.wanaActivate()
 		} else if d.currentRoom().IsGoal { // ゴールだったら
-			return true
+			return event.GameClearEvent
+		} else if d.checkEncounter() {
+			e := enemy.NewEnemy("警備員", "assets/enemy/keibi")
+			if !e.Battle() {
+				return event.GameOverEvent
+			}
+			// エンカウント率初期化
+			d.encounterRate = DefaultEncounterRate
+		} else {
+			// エンカウント率増加
+			d.encounterRate *= EncounterIncreaseRate
 		}
 		d.moveRoom = false
 	}
-	return false
+	return event.NoEvent
 }
 
 func (d *Dungeon) WaitAction() {
