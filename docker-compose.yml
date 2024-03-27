@@ -3,5 +3,8 @@ version: '3.7'
 services:
   main:
     build: .
+    container_name: jailbreak-go
+    ports:
+      - '${SOCKET_PORT:-8080}:8080'
     volumes:
       - ./:${WORKDIR:-/go/app}
