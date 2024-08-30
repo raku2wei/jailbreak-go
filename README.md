@@ -11,6 +11,8 @@ docker compose run --rm main
 ```sh
 go run cmd/jailbreak/main.go
 ```
+- If you have Go 1.18 or later installed locally, you can directly run `go run cmd/jailbreak/main.go`.
+- It will likely work with Go 1.18 or earlier, but this has not been tested.
 
 ## Recommended Terminal Settings
 
