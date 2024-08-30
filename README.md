@@ -12,6 +12,15 @@ docker compose run --rm main
 go run cmd/jailbreak/main.go
 ```
 
+## Recommended Terminal Settings
+
+- **Font:** SF Mono Regular  
+  - *Note: Fonts that visualize spaces are not recommended.*
+- **Font Size:** 12
+- **Window Size:** At least 80×55
+
+*These settings are provided as a reference and may vary depending on your PC environment. If the display is distorted, please adjust accordingly.*
+
 ## License
 
 MIT
