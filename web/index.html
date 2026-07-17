@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>jailbreak - ダンジョン脱出ゲーム</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0c0c0c;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <script src="wasm_exec.js"></script>
+  <script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("jailbreak.wasm"), go.importObject)
+      .then((result) => {
+        go.run(result.instance);
+      })
+      .catch((err) => {
+        console.error(err);
+        document.body.textContent = "WASMの読み込みに失敗しました: " + err;
+        document.body.style.color = "#fff";
+      });
+  </script>
+</body>
+</html>

@@ -1,9 +1,7 @@
 package event
 
 import (
-	"log"
-
-	"github.com/mattn/go-tty"
+	"jailbreak/internal/console"
 )
 
 type Event int
@@ -15,18 +13,6 @@ const (
 )
 
 func WaitToPressAnyKey() {
-	tty, err := tty.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer tty.Close()
-
-	for {
-		_, err := tty.ReadRune()
-		if err != nil {
-			log.Fatal(err)
-		}
-		return
-	}
+	// 任意のキー入力を待つ
+	console.ReadKey()
 }

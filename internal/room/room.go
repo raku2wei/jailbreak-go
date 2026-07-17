@@ -1,8 +1,7 @@
 package room
 
 import (
-	"fmt"
-	"jailbreak/pkg/system"
+	"jailbreak/internal/console"
 )
 
 // 東西南北の方向の定義
@@ -24,13 +23,13 @@ type Room struct {
 }
 
 func (r *Room) Display(dir Direction) {
-	system.System("clear")
+	console.Clear()
 	if r.HasHint {
-		fmt.Println("       ＼                                                        ／")
-		fmt.Println("         ＼                          \x1b[33m★\x1b[39m                        ／")
+		console.Println("       ＼                                                        ／")
+		console.Println("         ＼                          \x1b[33m★\x1b[39m                        ／")
 	} else {
-		fmt.Println("       ＼                                                        ／")
-		fmt.Println("         ＼                                                    ／")
+		console.Println("       ＼                                                        ／")
+		console.Println("         ＼                                                    ／")
 	}
 
 	left := false  // プレーヤーから見て左のドア
@@ -55,36 +54,36 @@ func (r *Room) Display(dir Direction) {
 		front = r.HasDoor[West]
 		right = r.HasDoor[North]
 	} else {
-		fmt.Println("向き情報に異常あり")
+		console.Println("向き情報に異常あり")
 	}
 
 	// 取得したドア情報から表示するAAを決定
 	if !left {
 		if !front {
 			if !right {
-				system.PrintFile("assets/rooms/door0")
+				console.PrintFile("assets/rooms/door0")
 			} else {
-				system.PrintFile("assets/rooms/doorR")
+				console.PrintFile("assets/rooms/doorR")
 			}
 		} else {
 			if !right {
-				system.PrintFile("assets/rooms/doorF")
+				console.PrintFile("assets/rooms/doorF")
 			} else {
-				system.PrintFile("assets/rooms/doorFR")
+				console.PrintFile("assets/rooms/doorFR")
 			}
 		}
 	} else {
 		if !front {
 			if !right {
-				system.PrintFile("assets/rooms/doorL")
+				console.PrintFile("assets/rooms/doorL")
 			} else {
-				system.PrintFile("assets/rooms/doorLR")
+				console.PrintFile("assets/rooms/doorLR")
 			}
 		} else {
 			if !right {
-				system.PrintFile("assets/rooms/doorLF")
+				console.PrintFile("assets/rooms/doorLF")
 			} else {
-				system.PrintFile("assets/rooms/doorLFR")
+				console.PrintFile("assets/rooms/doorLFR")
 			}
 		}
 	}
