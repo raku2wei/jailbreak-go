@@ -141,6 +141,11 @@ func (d *Dungeon) CheckEvent() event.Event {
 			if !e.Battle() {
 				return event.GameOverEvent
 			}
+			// 戦闘画面で上書きされた部屋の様子を描き直す(罠と同様)。
+			// 呼び出し元のゲームループは CheckEvent の前に Display 済みのため、
+			// ここで描き直さないと WaitAction の操作説明から画面が始まってしまう
+			d.Display()
+			console.Printf("\n")
 			// エンカウント率初期化
 			d.encounterRate = DefaultEncounterRate
 		} else {
