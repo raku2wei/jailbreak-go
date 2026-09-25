@@ -1,57 +1,57 @@
 package event
 
 import (
-	"fmt"
-	"jailbreak/pkg/system"
 	"time"
+
+	"jailbreak/internal/console"
 )
 
 func GameOver() {
-	system.System("clear")
+	console.Clear()
 
-    fmt.Println(" #####      #     #     #  #######  #######  #     #  #######  ######  \n");
+	console.Printf(" #####      #     #     #  #######  #######  #     #  #######  ######  \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#     #    # #    ##   ##  #        #     #  #     #  #        #     # \n");
+	console.Printf("#     #    # #    ##   ##  #        #     #  #     #  #        #     # \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#         #   #   # # # #  #        #     #  #     #  #        #     # \n");
+	console.Printf("#         #   #   # # # #  #        #     #  #     #  #        #     # \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#  ####  #     #  #  #  #  #####    #     #  #     #  #####    ######  \n");
+	console.Printf("#  ####  #     #  #  #  #  #####    #     #  #     #  #####    ######  \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#     #  #######  #     #  #        #     #   #   #   #        #   #   \n");
+	console.Printf("#     #  #######  #     #  #        #     #   #   #   #        #   #   \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#     #  #     #  #     #  #        #     #    # #    #        #    #  \n");
+	console.Printf("#     #  #     #  #     #  #        #     #    # #    #        #    #  \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println(" #####   #     #  #     #  #######  #######     #     #######  #     # \n");
+	console.Printf(" #####   #     #  #     #  #######  #######     #     #######  #     # \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("")
-    time.Sleep(500 * time.Millisecond)
-    fmt.Println( "ざんねん！！わたしの　ぼうけんは　これで　おわってしまった！！\n" );
+	console.Println("")
 	time.Sleep(500 * time.Millisecond)
-	fmt.Printf("\nPress [any key] to continue.")
+	console.Printf("ざんねん！！わたしの　ぼうけんは　これで　おわってしまった！！\n\n")
+	time.Sleep(500 * time.Millisecond)
+	console.Printf("\nPress [any key] to continue.")
 
 	WaitToPressAnyKey()
 }
 
 func printGameOver() {
-	system.System("clear")
+	console.Clear()
 
-    fmt.Println(" #####      #     #     #  #######  #######  #     #  #######  ######  \n");
+	console.Printf(" #####      #     #     #  #######  #######  #     #  #######  ######  \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#     #    # #    ##   ##  #        #     #  #     #  #        #     # \n");
+	console.Printf("#     #    # #    ##   ##  #        #     #  #     #  #        #     # \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#         #   #   # # # #  #        #     #  #     #  #        #     # \n");
+	console.Printf("#         #   #   # # # #  #        #     #  #     #  #        #     # \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#  ####  #     #  #  #  #  #####    #     #  #     #  #####    ######  \n");
+	console.Printf("#  ####  #     #  #  #  #  #####    #     #  #     #  #####    ######  \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#     #  #######  #     #  #        #     #   #   #   #        #   #   \n");
+	console.Printf("#     #  #######  #     #  #        #     #   #   #   #        #   #   \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("#     #  #     #  #     #  #        #     #    # #    #        #    #  \n");
+	console.Printf("#     #  #     #  #     #  #        #     #    # #    #        #    #  \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println(" #####   #     #  #     #  #######  #######     #     #######  #     # \n");
+	console.Printf(" #####   #     #  #     #  #######  #######     #     #######  #     # \n\n")
 	time.Sleep(500 * time.Millisecond)
-    fmt.Println("")
-    time.Sleep(500 * time.Millisecond)
-    fmt.Println( "ざんねん！！わたしの　ぼうけんは　これで　おわってしまった！！\n" );
+	console.Println("")
 	time.Sleep(500 * time.Millisecond)
-	fmt.Printf("\nPress [any key] to continue.")
+	console.Printf("ざんねん！！わたしの　ぼうけんは　これで　おわってしまった！！\n\n")
+	time.Sleep(500 * time.Millisecond)
+	console.Printf("\nPress [any key] to continue.")
 }
