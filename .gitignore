@@ -19,3 +19,4 @@ web/*.wasm
 
 # Claude Code のローカル設定
 .claude/settings.local.json
+CLAUDE.local.md
