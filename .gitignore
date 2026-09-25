@@ -16,3 +16,6 @@
 
 # WASMビルド成果物
 web/*.wasm
+
+# フォント生成のキャッシュ(tools/font/subset.py がダウンロードした元フォント)
+.cache/
