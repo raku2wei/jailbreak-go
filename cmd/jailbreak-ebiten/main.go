@@ -171,7 +171,9 @@ func (a *App) renderGrid() {
 				bgImg.Fill(bg)
 			}
 
-			if c.R == ' ' {
+			// 空白は描画しない。HackGen Console は全角スペース(U+3000)を
+			// 点線の四角で可視化するため、AA中の全角スペースも飛ばす
+			if c.R == ' ' || c.R == '\u3000' {
 				continue
 			}
 
