@@ -5,6 +5,8 @@ This game runs on UNIX terminal, desktop window (Ebitengine), and web browser (W
 
 ## How to play
 
+**ブラウザで遊ぶ: https://raku2wei.github.io/jailbreak-go/**
+
 ```sh
 docker compose run --rm main
 ```
@@ -35,6 +37,12 @@ go run ./cmd/serve
 
 # 3. ブラウザで http://localhost:8080 を開く
 ```
+
+### GitHub Pages(公開版)の更新
+
+1. 上記の手順1で `web/jailbreak.wasm` をビルドする(`web/wasm_exec.js` は `$(go env GOROOT)/misc/wasm/wasm_exec.js` と同じバージョンにする)
+2. `gh-pages` ブランチに `web/` の `index.html` / `wasm_exec.js` / `jailbreak.wasm` をコピーしてコミットする
+3. `git push origin gh-pages` で push すると、数分で https://raku2wei.github.io/jailbreak-go/ に反映される
 
 ### 操作方法
 
