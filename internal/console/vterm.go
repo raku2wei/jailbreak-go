@@ -172,8 +172,26 @@ func (v *VTerm) writeRune(r rune) {
 	}
 }
 
+// vtermWidth は VTerm が使う文字幅の判定条件。
+// runewidth.RuneWidth(DefaultCondition)は起動時の LC_ALL/LC_CTYPE/LANG を読み、
+// CJK ロケールでは East Asian Ambiguous の文字(矢印・罫線・■など)を2セルとして数える。
+// VTerm の描画幅は実行環境のロケールではなく同梱フォント(HackGen Console)で決まるので、
+// ロケールに依存しない固定の条件(Ambiguous は1セル)を使う。
+var vtermWidth = &runewidth.Condition{EastAsianWidth: false, StrictEmojiNeutral: true}
+
+// runeWidth は VTerm 上で r が占めるセル数を返す。
+// 同梱フォントのグリフ送り幅に合わせ、Ambiguous のうち ★/☆ だけは全角幅(2セル)として扱う。
+// (矢印・罫線・■ などの他の Ambiguous 文字は半角幅のグリフなので1セルのまま)
+func runeWidth(r rune) int {
+	switch r {
+	case '★', '☆': // U+2605, U+2606
+		return 2
+	}
+	return vtermWidth.RuneWidth(r)
+}
+
 func (v *VTerm) putRune(r rune) {
-	w := runewidth.RuneWidth(r)
+	w := runeWidth(r)
 	if w <= 0 {
 		return // 制御文字・結合文字は無視
 	}
