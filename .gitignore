@@ -16,3 +16,6 @@
 
 # WASMビルド成果物
 web/*.wasm
+
+# Claude Code のローカル設定
+.claude/settings.local.json
