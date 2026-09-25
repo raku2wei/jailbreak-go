@@ -4,7 +4,7 @@
 //
 // 使い方:
 //
-//	GOOS=js GOARCH=wasm go build -o web/jailbreak.wasm ./cmd/jailbreak-ebiten
+//	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o web/jailbreak.wasm ./cmd/jailbreak-ebiten
 //	go run ./cmd/serve
 //	→ ブラウザで http://localhost:8080 を開く
 package main

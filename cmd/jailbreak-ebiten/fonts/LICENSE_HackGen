@@ -1,3 +1,17 @@
+JailbreakMono-Regular.ttf について
+==================================
+
+JailbreakMono-Regular.ttf は「白源 / HackGen」v2.10.0 の HackGenConsole-Regular.ttf
+(Copyright (c) 2019, Yuko OTAWARA / https://github.com/yuru7/HackGen)を、
+jailbreak-go が表示する文字だけにサブセット化した改変版(Modified Version)です。
+SIL Open Font License 1.1 の Reserved Font Name("白源", "HackGen")に従い、
+フォント名を "JailbreakMono" に変更しています。JailbreakMono も SIL OFL 1.1 で配布します。
+生成手順: リポジトリの `make font`(tools/font/subset.py)
+
+以下は元フォントに同梱されているライセンス文書(無改変)です。
+
+==================================
+
 # Licensing
 
 - Source fonts are licensed under SIL OPEN FONT LICENSE Version 1.1.

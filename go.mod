@@ -8,6 +8,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.8.9
 	github.com/mattn/go-runewidth v0.0.24
 	github.com/mattn/go-tty v0.0.4
+	golang.org/x/image v0.21.0
 )
 
 require (
@@ -18,7 +19,6 @@ require (
 	github.com/go-text/typesetting v0.2.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
-	golang.org/x/image v0.21.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect

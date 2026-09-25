@@ -21,11 +21,13 @@ import (
 	"jailbreak/internal/game"
 )
 
-// 日本語等幅フォント HackGen Console (SIL Open Font License 1.1)
-// ライセンス: fonts/LICENSE_HackGen を参照
+// 日本語等幅フォント JailbreakMono。
+// HackGen Console Regular v2.10.0 (SIL Open Font License 1.1) を、ゲームが表示する
+// 文字だけにサブセット化して改名したもの(OFL の Reserved Font Name 対応)。
+// 生成手順は `make font`(tools/font/subset.py)、ライセンスは fonts/LICENSE_HackGen を参照。
 //
-//go:embed fonts/HackGenConsole-Regular.ttf
-var hackGenTTF []byte
+//go:embed fonts/JailbreakMono-Regular.ttf
+var fontTTF []byte
 
 const (
 	// 仮想端末のサイズ(推奨ターミナルサイズ 80x55 に合わせる)
@@ -73,7 +75,7 @@ type App struct {
 }
 
 func NewApp() *App {
-	src, err := text.NewGoTextFaceSource(bytes.NewReader(hackGenTTF))
+	src, err := text.NewGoTextFaceSource(bytes.NewReader(fontTTF))
 	if err != nil {
 		log.Fatal(err)
 	}
