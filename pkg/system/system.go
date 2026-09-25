@@ -50,7 +50,7 @@ func LoadLineText(path string, line int) string {
 	if err != nil {
 		panic(err)
 	}
-	defer fp.Close() 
+	defer fp.Close()
 
 	scanner := bufio.NewScanner(fp)
 	n := 1
