@@ -16,7 +16,6 @@ require (
 	github.com/ebitengine/gomobile v0.0.0-20241016022004-957bd3215dd8 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.8.0 // indirect
-	github.com/go-text/typesetting v0.2.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	golang.org/x/sync v0.8.0 // indirect
