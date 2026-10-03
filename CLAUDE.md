@@ -11,7 +11,8 @@ Go 製のテキストベースのダンジョン脱出ゲーム。同じゲー�
 - デスクトップ版: `cmd/jailbreak-ebiten`([Ebitengine](https://ebitengine.org/) のウィンドウに仮想端末を描画)
 - ブラウザ版: `cmd/jailbreak-ebiten` を WebAssembly でビルドしたもの(GitHub Pages で公開)
 
-Go のバージョンは `go.mod` の指定に従う(Ebitengine v2.8 の要件で Go 1.22 以上)。
+Go のバージョンは `go.mod` の指定に従う(`go 1.27.0` / `toolchain go1.27.1`。Ebitengine v2.8 自体の要件は Go 1.22 以上)。
+Go を上げるときは `go.mod` に加えて `web/wasm_exec.js`・`Dockerfile` のベースイメージ・README の記述も合わせる(CI は `go-version-file: go.mod` で追従する)。
 
 ## ディレクトリ構成
 

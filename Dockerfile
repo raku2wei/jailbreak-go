@@ -1,5 +1,6 @@
-# go.mod が go 1.22 を要求するため(Ebitengine v2.8 対応)
-FROM golang:1.22-alpine3.20
+# go.mod の go / toolchain 行(Go 1.27)に合わせる。
+# 公式 golang イメージは GOTOOLCHAIN=local のため、go.mod より古い Go のイメージではビルドできない。
+FROM golang:1.27-alpine3.24
 
 ARG WORKDIR=/go/app
 
