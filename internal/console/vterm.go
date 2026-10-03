@@ -22,7 +22,9 @@ type Cell struct {
 
 // VTerm は80x55等の文字グリッドを持つ簡易仮想端末。
 // このゲームが使用する範囲のANSIエスケープ(SGR: 0,1,7,30-37,39,40-47,49)をパースして
-// セル属性に反映する。Ebitengine 側は Snapshot() の結果を毎フレーム描画するだけでよい。
+// セル属性に反映する。画面の一部だけを書き換えるために、カーソル位置指定(CSI 行;列 H / f)と
+// 行消去(CSI K: 0=カーソルから行末 / 1=行頭からカーソル / 2=行全体)も解釈する。
+// Ebitengine 側は Snapshot() の結果を毎フレーム描画するだけでよい。
 type VTerm struct {
 	mu         sync.Mutex
 	cols, rows int
@@ -141,10 +143,16 @@ func (v *VTerm) writeRune(r rune) {
 			return
 		}
 		if r >= 0x40 && r <= 0x7e { // 終端文字
-			if r == 'm' {
-				v.applySGR(string(v.esc[1:]))
+			params := string(v.esc[1:])
+			switch r {
+			case 'm':
+				v.applySGR(params)
+			case 'H', 'f':
+				v.moveCursor(params)
+			case 'K':
+				v.eraseLine(params)
 			}
-			// SGR以外のCSI(カーソル移動等)はこのゲームでは未使用なので無視
+			// それ以外のCSI(画面消去 J・相対移動 A〜D・?25l 等)は未対応なので無視
 			v.inEsc = false
 			v.esc = v.esc[:0]
 			return
@@ -258,4 +266,48 @@ func (v *VTerm) applySGR(params string) {
 		}
 	}
 	apply(n)
+}
+
+// csiParams は "10;5" のような CSI のパラメータを数値の列にする。
+// 省略されたパラメータは 0 になる(既定値の扱いは呼び出し側で決める)。
+func csiParams(params string) []int {
+	var out []int
+	n := 0
+	for _, ch := range params {
+		if ch >= '0' && ch <= '9' {
+			n = n*10 + int(ch-'0')
+		} else if ch == ';' {
+			out = append(out, n)
+			n = 0
+		}
+	}
+	return append(out, n)
+}
+
+// moveCursor は CSI 行;列 H を処理する。行・列は 1 始まりで、省略または 0 は 1 とみなす。
+// 画面外の指定は端に丸める。
+func (v *VTerm) moveCursor(params string) {
+	p := csiParams(params)
+	row, col := p[0], 0
+	if len(p) > 1 {
+		col = p[1]
+	}
+	v.cy = min(max(row, 1), v.rows) - 1
+	v.cx = min(max(col, 1), v.cols) - 1
+}
+
+// eraseLine は CSI K を処理する(0 または省略=カーソルから行末 / 1=行頭からカーソルまで / 2=行全体)。
+// 実ターミナルと同じく、消したセルには現在の背景色が付く。カーソルは動かさない。
+func (v *VTerm) eraseLine(params string) {
+	from, to := v.cx, v.cols // [from, to)
+	switch csiParams(params)[0] {
+	case 1:
+		from, to = 0, min(v.cx+1, v.cols)
+	case 2:
+		from = 0
+	}
+	row := v.cy * v.cols
+	for x := from; x < to; x++ {
+		v.cells[row+x] = Cell{R: ' ', Fg: ColorDefault, Bg: v.bg}
+	}
 }

@@ -12,7 +12,9 @@ import (
 //     0 リセット / 1 太字 / 7 反転 / 22 太字解除 / 27 反転解除 /
 //     30-37 前景色 / 39 前景色デフォルト / 40-47 背景色 / 49 背景色デフォルト。
 //     パラメータ省略(ESC[m)は 0 と同じ。";" 区切りで複数指定可。上記以外の数値は無視。
-//   - SGR 以外の CSI(終端 0x40-0x7e が 'm' 以外。ESC[2J, ESC[H, ESC[?25l 等)は読み捨てる。
+//   - CSI 行;列 H(f も同じ)はカーソルを指定位置へ動かす(1 始まり。省略・0 は 1、画面外は端に丸める)。
+//   - CSI K は行消去(0/省略=カーソルから行末、1=行頭からカーソルまで、2=行全体)。カーソルは動かない。
+//   - それ以外の CSI(ESC[2J, ESC[3A, ESC[?25l 等)は読み捨てる。
 //     ESC[2J でも画面はクリアされない(クリアは Clear() が担当)。
 //   - CSI 以外のエスケープ(ESC c 等)は ESC の直後の1文字ごと読み捨てる。
 //   - パース状態は WriteString の呼び出しをまたいで保持される(分割されたシーケンスも解釈される)。
@@ -103,10 +105,9 @@ func TestVTermUnsupportedSequences(t *testing.T) {
 		{"カーソル非表示 ?25l", esc + "[?25l"},
 		{"カーソル表示 ?25h", esc + "[?25h"},
 		{"画面消去 2J", esc + "[2J"},
-		{"カーソルホーム H", esc + "[H"},
-		{"カーソル位置 10;5H", esc + "[10;5H"},
 		{"カーソル上 A", esc + "[3A"},
-		{"行消去 K", esc + "[K"},
+		{"カーソル右 C", esc + "[2C"},
+		{"画面消去 J(カーソル以降)", esc + "[J"},
 		{"CSI 以外 ESC c", esc + "c"},
 		{"CSI 以外 ESC 7", esc + "7"},
 		{"CSI 以外 ESC (B", esc + "(" + "B"}, // "(" だけ読み捨て、"B" は文字として残る
@@ -187,5 +188,80 @@ func TestVTermIgnoredControlChars(t *testing.T) {
 				t.Errorf("行: got %q, want %q", got, "abc")
 			}
 		})
+	}
+}
+
+// CSI 行;列 H でカーソルが指定位置(1 始まり)へ動くこと。
+func TestVTermCursorPosition(t *testing.T) {
+	cases := []struct {
+		name         string
+		seq          string
+		wantX, wantY int
+	}{
+		{"ESC[H はホーム", esc + "[H", 0, 0},
+		{"行;列", esc + "[3;5H", 4, 2},
+		{"f も同じ", esc + "[3;5f", 4, 2},
+		{"列の省略は1列目", esc + "[2H", 0, 1},
+		{"行の省略は1行目", esc + "[;4H", 3, 0},
+		{"0 は 1 とみなす", esc + "[0;0H", 0, 0},
+		{"画面外は端に丸める", esc + "[99;99H", 9, 3},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			v := console.NewVTerm(10, 4)
+			v.WriteString("abc\nde")
+			x, y := pos(t, v, c.seq)
+			if x != c.wantX || y != c.wantY {
+				t.Errorf("カーソル: got (%d,%d), want (%d,%d)", x, y, c.wantX, c.wantY)
+			}
+		})
+	}
+}
+
+// カーソル移動で既存の文字の上に書くと、その位置だけが書き換わること(他の行は残る)。
+func TestVTermCursorPositionOverwrite(t *testing.T) {
+	v := console.NewVTerm(6, 3)
+	v.WriteString("aaaaaa\nbbbbbb\ncccccc")
+	v.WriteString(esc + "[2;3HXY")
+	cells := v.Snapshot(nil)
+	for y, want := range []string{"aaaaaa", "bbXYbb", "cccccc"} {
+		if got := rowText(cells, 6, y); got != want {
+			t.Errorf("%d 行目: got %q, want %q", y, got, want)
+		}
+	}
+}
+
+// CSI K は指定範囲だけを消し、カーソルは動かさないこと。消したセルには現在の背景色が付く。
+func TestVTermEraseLine(t *testing.T) {
+	cases := []struct {
+		name string
+		seq  string
+		want string // 1行目(消去後に "|" を書く)
+	}{
+		{"0/省略はカーソルから行末", esc + "[K", "bb|   "},
+		{"0 明示", esc + "[0K", "bb|   "},
+		{"1 は行頭からカーソルまで", esc + "[1K", "  |bbb"},
+		{"2 は行全体", esc + "[2K", "  |   "},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			v := console.NewVTerm(6, 3)
+			v.WriteString("aaaaaa\nbbbbbb\ncccccc")
+			v.WriteString(esc + "[2;3H" + c.seq + "|")
+			cells := v.Snapshot(nil)
+			for y, want := range []string{"aaaaaa", c.want, "cccccc"} {
+				if got := rowText(cells, 6, y); got != want {
+					t.Errorf("%d 行目: got %q, want %q", y, got, want)
+				}
+			}
+		})
+	}
+
+	v := console.NewVTerm(4, 1)
+	v.WriteString("abcd" + esc + "[44m" + esc + "[1;1H" + esc + "[2K")
+	for i, c := range v.Snapshot(nil) {
+		if c != (console.Cell{R: ' ', Fg: console.ColorDefault, Bg: 4}) {
+			t.Errorf("セル %d: 消去後のセルが現在の背景色の空白になっていない: %+v", i, c)
+		}
 	}
 }

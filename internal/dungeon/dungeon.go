@@ -138,6 +138,8 @@ func (d *Dungeon) CheckEvent() event.Event {
 			return event.GameClearEvent
 		} else if d.checkEncounter() {
 			e := enemy.NewEnemy("警備員", "assets/enemy/keibi")
+			// 戦闘は一人称視点の描写エリアの中で行うので、その下に戦闘用の案内とマップを出しておく
+			d.printBattleFooter(e)
 			if !e.Battle() {
 				return event.GameOverEvent
 			}
@@ -208,6 +210,20 @@ func (d *Dungeon) WaitAction() {
 			return
 		}
 	}
+}
+
+// printBattleFooter は戦闘中に画面下部へ出す内容(操作説明の行の代わりの戦闘用の案内と、
+// 戦闘開始時点のマップ)を描く。戦闘画面(enemy.Battle)は一人称視点の描写エリアだけを
+// 書き換えるので、ここで描いたものは戦闘中そのまま残る。
+// 操作説明(w/s/a/d)は戦闘中は効かない(押すとタイプミスになる)ので、戦闘用の案内に差し替える。
+func (d *Dungeon) printBattleFooter(e *enemy.Enemy) {
+	var f console.Frame
+	f.Erase(console.GuideArea)
+	f.Erase(console.MapArea)
+	f.MoveTo(console.GuideArea.Top, 0)
+	f.Print("ローマじを 入力して " + e.Name + "を たおせ！\n")
+	f.Flush()
+	d.PrintMap()
 }
 
 func (d *Dungeon) explore(dir room.Direction) {
