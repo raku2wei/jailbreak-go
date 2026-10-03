@@ -92,3 +92,29 @@ func TestVTermHintRoomWallAligned(t *testing.T) {
 		t.Errorf("ヒント部屋の壁がずれている: hint=%d, normal=%d", hint, normal)
 	}
 }
+
+// TextWidth は VTerm と同じ文字幅で数え、ANSI エスケープは数えないこと。
+func TestTextWidth(t *testing.T) {
+	cases := []struct {
+		s    string
+		want int
+	}{
+		{"", 0},
+		{"abc", 3},
+		{"あい", 4},
+		{"★", 2},
+		{"→", 1},
+		{"\x1b[1;32mab\x1b[0m", 2},
+		{"\x1b[41mタイプミス！\x1b[49m", 12},
+	}
+	for _, c := range cases {
+		if got := console.TextWidth(c.s); got != c.want {
+			t.Errorf("TextWidth(%q) = %d, want %d", c.s, got, c.want)
+		}
+		// VTerm に書いたときのカーソル位置と一致すること
+		v := console.NewVTerm(80, 2)
+		if x, _ := pos(t, v, c.s); x != c.want {
+			t.Errorf("VTerm 上の幅(%q) = %d, want %d", c.s, x, c.want)
+		}
+	}
+}

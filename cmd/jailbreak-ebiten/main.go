@@ -31,8 +31,8 @@ var fontTTF []byte
 
 const (
 	// 仮想端末のサイズ(推奨ターミナルサイズ 80x55 に合わせる)
-	cols = 80
-	rows = 55
+	cols = console.ScreenCols
+	rows = console.ScreenRows
 
 	// フォントサイズと1セルの大きさ
 	// HackGen Console は半角:全角 = 1:2 の等幅フォントなので
