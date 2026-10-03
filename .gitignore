@@ -19,3 +19,7 @@ web/*.wasm
 
 # フォント生成のキャッシュ(tools/font/subset.py がダウンロードした元フォント)
 .cache/
+
+# Claude Code のローカル設定
+.claude/settings.local.json
+CLAUDE.local.md
