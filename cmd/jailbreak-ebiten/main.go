@@ -7,15 +7,16 @@
 package main
 
 import (
-	"bytes"
 	_ "embed"
 	"image"
 	"image/color"
+	"image/draw"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
 
 	"jailbreak/internal/console"
 	"jailbreak/internal/game"
@@ -64,28 +65,38 @@ var (
 
 // App はEbitengineのゲームインターフェース実装。
 type App struct {
-	vt   *console.VTerm
-	face *text.GoTextFace
+	vt    *console.VTerm
+	glyph *glyphCache
 
-	offscreen *ebiten.Image // 文字グリッドの描画先(内容が変わったときだけ再描画)
+	canvas    *image.RGBA   // 文字グリッドをCPUで描く先(内容が変わったときだけ再描画)
+	offscreen *ebiten.Image // canvas を転送した画面用イメージ
 	lastGen   int64
 	cellBuf   []console.Cell
 	done      chan struct{} // ゲームロジック終了通知
 	inputBuf  []rune
 }
 
-func NewApp() *App {
-	src, err := text.NewGoTextFaceSource(bytes.NewReader(fontTTF))
+// newFace は埋め込みフォントから描画用のフェイスを作る。
+func newFace() font.Face {
+	ft, err := opentype.Parse(fontTTF)
 	if err != nil {
 		log.Fatal(err)
 	}
+	face, err := opentype.NewFace(ft, &opentype.FaceOptions{Size: fontSize, DPI: 72, Hinting: font.HintingNone})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return face
+}
 
+func NewApp() *App {
 	vt := console.NewVTerm(cols, rows)
 	console.SetBackend(vt)
 
 	a := &App{
 		vt:      vt,
-		face:    &text.GoTextFace{Source: src, Size: fontSize},
+		glyph:   newGlyphCache(newFace()),
+		canvas:  image.NewRGBA(image.Rect(0, 0, screenW, screenH)),
 		done:    make(chan struct{}),
 		lastGen: -1,
 	}
@@ -151,12 +162,20 @@ func (a *App) Draw(screen *ebiten.Image) {
 }
 
 func (a *App) renderGrid() {
-	a.offscreen.Fill(defaultBg)
 	a.cellBuf = a.vt.Snapshot(a.cellBuf)
+	drawGrid(a.canvas, a.cellBuf, a.glyph)
+	a.offscreen.WritePixels(a.canvas.Pix)
+}
+
+// drawGrid は仮想端末の文字グリッド cells を dst に描く。
+// Ebitengine の text パッケージは go-text/typesetting(HarfBuzz 移植等)を含み
+// WASM が約3MB大きくなるため、golang.org/x/image/font でCPU描画して転送している。
+func drawGrid(dst *image.RGBA, cells []console.Cell, g *glyphCache) {
+	draw.Draw(dst, dst.Bounds(), image.NewUniform(defaultBg), image.Point{}, draw.Src)
 
 	for y := 0; y < rows; y++ {
 		for x := 0; x < cols; x++ {
-			c := a.cellBuf[y*cols+x]
+			c := cells[y*cols+x]
 			if c.R == 0 { // 全角文字の2マス目
 				continue
 			}
@@ -166,11 +185,11 @@ func (a *App) renderGrid() {
 			// 背景色(デフォルト以外のときだけ塗る)
 			if bg != defaultBg {
 				w := cellW
-				if x+1 < cols && a.cellBuf[y*cols+x+1].R == 0 {
+				if x+1 < cols && cells[y*cols+x+1].R == 0 {
 					w = cellW * 2 // 全角文字は2セル分
 				}
-				bgImg := a.offscreen.SubImage(image.Rect(x*cellW, y*cellH, x*cellW+w, (y+1)*cellH)).(*ebiten.Image)
-				bgImg.Fill(bg)
+				r := image.Rect(x*cellW, y*cellH, x*cellW+w, (y+1)*cellH)
+				draw.Draw(dst, r, image.NewUniform(bg), image.Point{}, draw.Src)
 			}
 
 			// 空白は描画しない。HackGen Console は全角スペース(U+3000)を
@@ -179,18 +198,10 @@ func (a *App) renderGrid() {
 				continue
 			}
 
-			// 文字を描画
-			op := &text.DrawOptions{}
-			op.GeoM.Translate(float64(x*cellW), float64(y*cellH))
-			op.ColorScale.ScaleWithColor(fg)
-			text.Draw(a.offscreen, string(c.R), a.face, op)
-
+			// 文字を描画(太字はわずかにずらして重ね描きで擬似的に表現)
+			g.draw(dst, x*cellW, y*cellH, c.R, fg, false)
 			if c.Bold {
-				// 太字はわずかにずらして重ね描きで擬似的に表現
-				op2 := &text.DrawOptions{}
-				op2.GeoM.Translate(float64(x*cellW)+0.7, float64(y*cellH))
-				op2.ColorScale.ScaleWithColor(fg)
-				text.Draw(a.offscreen, string(c.R), a.face, op2)
+				g.draw(dst, x*cellW, y*cellH, c.R, fg, true)
 			}
 		}
 	}

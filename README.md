@@ -19,6 +19,8 @@ go run ./cmd/jailbreak
 
 [Ebitengine](https://ebitengine.org/) 製のフロントエンドで、ターミナルと同じテキスト画面を
 等幅フォント JailbreakMono(下記「フォントについて」参照)で描画します。
+文字は Ebitengine の text パッケージではなく `golang.org/x/image/font` で CPU 描画しています
+(text パッケージが含む go-text/typesetting を外して WASM を約3MB小さくするため)。
 
 ### デスクトップウィンドウで起動
 
