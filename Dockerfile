@@ -1,4 +1,5 @@
-FROM golang:1.20.5-alpine3.18
+# go.mod が go 1.22 を要求するため(Ebitengine v2.8 対応)
+FROM golang:1.22-alpine3.20
 
 ARG WORKDIR=/go/app
 

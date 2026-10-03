@@ -1,54 +1,37 @@
+//go:build !js
+
+// 従来どおりUNIXターミナル上で動作するエントリポイント。
 package main
 
 import (
-	"fmt"
-	"jailbreak/internal/dungeon"
-	"jailbreak/internal/event"
-	"jailbreak/internal/player"
-	"jailbreak/internal/title"
-	"time"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"jailbreak/internal/console"
+	"jailbreak/internal/game"
 )
 
 func main() {
-	for {
-		// タイトル表示
-		t := title.NewTitle()
-		t.Select()
+	// 実ターミナル用バックエンド(標準出力 + go-tty)を設定
+	tb := console.NewTerminalBackend()
+	// 正常終了(タイトルで「ゲーム終了」)・panic 時に端末モードを戻す
+	defer tb.Close()
 
-		switch t.Selected {
-		case title.Rule:
-			title.PrintRule()
-			break
-		case title.Start:
-			break
-		case title.End:
-			fmt.Println("ゲームを終了します...")
-			return
+	// Ctrl-C / SIGTERM でも端末モードを戻してから終了する
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-sigs
+		tb.Close()
+		// シェルの慣例(128 + シグナル番号)に合わせた終了コードにする
+		code := 1
+		if s, ok := sig.(syscall.Signal); ok {
+			code = 128 + int(s)
 		}
+		os.Exit(code)
+	}()
 
-		fmt.Println("Game Start!")
-
-		p := player.NewPlayer()
-		d := dungeon.Create(*p)
-
-		// ゲームループ：勝利条件を満たすまで続く
-		GameLoop:
-			for {
-				d.Display() // 部屋の様子を表示
-
-				switch d.CheckEvent() {
-				case event.GameClearEvent:
-					event.GameClear()
-					break GameLoop
-				case event.GameOverEvent:
-					event.GameOver()
-					break GameLoop
-				}
-
-				d.WaitAction() // ユーザーから行動を入力してもらい、移動または方向転換を行う
-				fmt.Printf("\n")
-
-				time.Sleep(400 * time.Millisecond) // 0.4秒停止
-			}
-	}
+	console.SetBackend(tb)
+	game.Run()
 }

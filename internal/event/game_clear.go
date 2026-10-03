@@ -1,24 +1,24 @@
 package event
 
 import (
-	"fmt"
-	"jailbreak/pkg/system"
 	"time"
+
+	"jailbreak/internal/console"
 )
 
 func GameClear() {
-	system.System("clear")
-	fmt.Printf("\nゲームクリア！！\n")
+	console.Clear()
+	console.Printf("\nゲームクリア！！\n")
 	time.Sleep(1 * time.Second)
-	fmt.Printf("\n")
-	fmt.Printf("Thank you for playing.\n")
+	console.Printf("\n")
+	console.Printf("Thank you for playing.\n")
 	time.Sleep(1 * time.Second)
-	fmt.Printf("\n")
-	fmt.Printf("\n")
-	fmt.Printf("Produced by raku2wei")
-	fmt.Printf("\n")
+	console.Printf("\n")
+	console.Printf("\n")
+	console.Printf("Produced by raku2wei")
+	console.Printf("\n")
 
-	fmt.Printf("\nPress [any key] to continue.")
+	console.Printf("\nPress [any key] to continue.")
 
 	WaitToPressAnyKey()
 }

@@ -1,32 +1,17 @@
 package title
 
 import (
-	"jailbreak/pkg/system"
-	"log"
-
-	"github.com/mattn/go-tty"
+	"jailbreak/internal/console"
 )
 
 func PrintRule() {
 	print()
 
-	tty, err := tty.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer tty.Close()
-
-	for {
-		_, err := tty.ReadRune()
-		if err != nil {
-			log.Fatal(err)
-		}
-		return
-	}
+	// 任意のキー入力を待つ
+	console.ReadKey()
 }
 
 func print() {
-	system.System("clear")
-	system.PrintFile("assets/title/rule")
+	console.Clear()
+	console.PrintFile("assets/title/rule")
 }

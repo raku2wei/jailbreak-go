@@ -1,24 +1,21 @@
 package dungeon
 
 import (
-	"fmt"
+	"time"
+
+	"jailbreak/internal/console"
 	"jailbreak/internal/enemy"
 	"jailbreak/internal/event"
 	"jailbreak/internal/player"
 	"jailbreak/internal/room"
-	"jailbreak/pkg/system"
-	"log"
-	"time"
-
-	"github.com/mattn/go-tty"
 )
 
 type Dungeon struct {
 	// ダンジョンの部屋は4x6のグリッドなので2次配列
 	// (1,1)からスタートとするので配列は5x7
-	rooms    [7][5]room.Room
-	player   player.Player // ダンジョン内にいるプレイヤー
-	moveRoom bool          // プレイヤーが部屋を移動したかどうか（イベントチェック用）
+	rooms         [7][5]room.Room
+	player        player.Player // ダンジョン内にいるプレイヤー
+	moveRoom      bool          // プレイヤーが部屋を移動したかどうか（イベントチェック用）
 	encounterRate float32
 }
 
@@ -127,7 +124,7 @@ func (d *Dungeon) Display() {
 
 func (d *Dungeon) CheckEvent() event.Event {
 
-	fmt.Printf("\n")
+	console.Printf("\n")
 
 	if !d.currentRoom().IsVisited {
 		d.currentRoom().IsVisited = true
@@ -144,6 +141,11 @@ func (d *Dungeon) CheckEvent() event.Event {
 			if !e.Battle() {
 				return event.GameOverEvent
 			}
+			// 戦闘画面で上書きされた部屋の様子を描き直す(罠と同様)。
+			// 呼び出し元のゲームループは CheckEvent の前に Display 済みのため、
+			// ここで描き直さないと WaitAction の操作説明から画面が始まってしまう
+			d.Display()
+			console.Printf("\n")
 			// エンカウント率初期化
 			d.encounterRate = DefaultEncounterRate
 		} else {
@@ -162,39 +164,29 @@ func (d *Dungeon) WaitAction() {
 		back -= 4
 	}
 
-	tty, err := tty.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer tty.Close()
-
 	// 入力処理
 	for {
-		fmt.Printf("w：前に進む   s：後ろに進む   a：左を向く   d：右を向く   ")
-		fmt.Printf("\x1b[1m")  // 文字を強調
-		fmt.Printf("\x1b[36m") // 文字を水色に
+		console.Printf("w：前に進む   s：後ろに進む   a：左を向く   d：右を向く   ")
+		console.Printf("\x1b[1m")  // 文字を強調
+		console.Printf("\x1b[36m") // 文字を水色に
 		if front == room.North {
-			fmt.Printf("↑ 北")
+			console.Printf("↑ 北")
 		} else if front == room.East {
-			fmt.Printf("← 北")
+			console.Printf("← 北")
 		} else if front == room.South {
-			fmt.Printf("↓ 北")
+			console.Printf("↓ 北")
 		} else if front == room.West {
-			fmt.Printf("→ 北")
+			console.Printf("→ 北")
 		} else {
-			fmt.Printf("向きがおかしいよ")
+			console.Printf("向きがおかしいよ")
 		}
-		fmt.Printf("\x1b[39m") // 文字色を戻す
-		fmt.Printf("\x1b[0m")  // 強調を解除
-		fmt.Printf("\n")
+		console.Printf("\x1b[39m") // 文字色を戻す
+		console.Printf("\x1b[0m")  // 強調を解除
+		console.Printf("\n")
 
 		d.PrintMap() // マップ表示
 
-		r, err := tty.ReadRune()
-		if err != nil {
-			log.Fatal(err)
-		}
+		r := console.ReadKey()
 
 		switch r {
 		case 119: // wを入力した場合、前の部屋に進む
@@ -210,9 +202,9 @@ func (d *Dungeon) WaitAction() {
 			d.player.Rotate(player.Right)
 			return
 		default: // 他の文字を入力した場合、再入力を促す
-			fmt.Printf("\x1b[41m") // 背景色を赤に変更
-			fmt.Printf("\n無効なキー操作です。行動を再入力してください。\n")
-			fmt.Printf("\x1b[49m") // 背景色を戻す
+			console.Printf("\x1b[41m") // 背景色を赤に変更
+			console.Printf("\n無効なキー操作です。行動を再入力してください。\n")
+			console.Printf("\x1b[49m") // 背景色を戻す
 			return
 		}
 	}
@@ -225,15 +217,15 @@ func (d *Dungeon) explore(dir room.Direction) {
 
 		d.moveRoom = true // 移動検知
 
-		system.System("clear")
+		console.Clear()
 		// ドアを開けるAA表示
-		system.PrintFile("assets/rooms/openDoor")
+		console.PrintFile("assets/rooms/openDoor")
 		time.Sleep(400 * time.Millisecond)
 	} else {
 		// 進行方向にドアがない場合
-		fmt.Printf("\x1b[41m") // 背景色を赤に変更
-		fmt.Printf("\nその方向には進めません！\n")
-		fmt.Printf("\x1b[49m") // 背景色を戻す
+		console.Printf("\x1b[41m") // 背景色を赤に変更
+		console.Printf("\nその方向には進めません！\n")
+		console.Printf("\x1b[49m") // 背景色を戻す
 	}
 }
 

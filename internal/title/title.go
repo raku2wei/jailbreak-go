@@ -1,11 +1,7 @@
 package title
 
 import (
-	"fmt"
-	"jailbreak/pkg/system"
-	"log"
-
-	"github.com/mattn/go-tty"
+	"jailbreak/internal/console"
 )
 
 type Selection int
@@ -29,18 +25,8 @@ func NewTitle() *Title {
 func (t *Title) Select() {
 	t.print()
 
-	tty, err := tty.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer tty.Close()
-
 	for {
-		r, err := tty.ReadRune()
-		if err != nil {
-			log.Fatal(err)
-		}
+		r := console.ReadKey()
 		switch r {
 		case 119: // w
 			t.prev()
@@ -68,37 +54,37 @@ func (t *Title) prev() {
 }
 
 func (t *Title) print() {
-	system.System("clear")
+	console.Clear()
 
-	system.PrintFile("assets/title/logo")
+	console.PrintFile("assets/title/logo")
 
 	switch t.Selected {
 	case Rule:
-		fmt.Printf("                       ")
-		fmt.Printf("\x1b[7m")
-		fmt.Printf("1) ルール説明\n")
-		fmt.Printf("\x1b[0m")
-		fmt.Printf("                       ")
-		fmt.Printf("2) ゲームスタート\n")
-		fmt.Printf("                       ")
-		fmt.Printf("3) ゲーム終了\n")
+		console.Printf("                       ")
+		console.Printf("\x1b[7m")
+		console.Printf("1) ルール説明\n")
+		console.Printf("\x1b[0m")
+		console.Printf("                       ")
+		console.Printf("2) ゲームスタート\n")
+		console.Printf("                       ")
+		console.Printf("3) ゲーム終了\n")
 	case Start:
-		fmt.Printf("                       ")
-		fmt.Printf("1) ルール説明\n")
-		fmt.Printf("                       ")
-		fmt.Printf("\x1b[7m")
-		fmt.Printf("2) ゲームスタート\n")
-		fmt.Printf("\x1b[0m")
-		fmt.Printf("                       ")
-		fmt.Printf("3) ゲーム終了\n")
+		console.Printf("                       ")
+		console.Printf("1) ルール説明\n")
+		console.Printf("                       ")
+		console.Printf("\x1b[7m")
+		console.Printf("2) ゲームスタート\n")
+		console.Printf("\x1b[0m")
+		console.Printf("                       ")
+		console.Printf("3) ゲーム終了\n")
 	case End:
-		fmt.Printf("                       ")
-		fmt.Printf("1) ルール説明\n")
-		fmt.Printf("                       ")
-		fmt.Printf("2) ゲームスタート\n")
-		fmt.Printf("                       ")
-		fmt.Printf("\x1b[7m")
-		fmt.Printf("3) ゲーム終了\n")
-		fmt.Printf("\x1b[0m")
+		console.Printf("                       ")
+		console.Printf("1) ルール説明\n")
+		console.Printf("                       ")
+		console.Printf("2) ゲームスタート\n")
+		console.Printf("                       ")
+		console.Printf("\x1b[7m")
+		console.Printf("3) ゲーム終了\n")
+		console.Printf("\x1b[0m")
 	}
 }
