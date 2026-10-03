@@ -13,7 +13,7 @@ docker compose run --rm main
 ```sh
 go run ./cmd/jailbreak
 ```
-- Go 1.22 or later is required (Ebitengine v2.8 requirement).
+- Go 1.27 or later is required (see `go.mod`; with the default `GOTOOLCHAIN=auto`, older Go downloads go1.27.1 automatically).
 
 ## ブラウザ版 / デスクトップ版 (Ebitengine)
 
@@ -40,7 +40,7 @@ go run ./cmd/serve
 
 ### GitHub Pages(公開版)の更新
 
-1. 上記の手順1(`-ldflags="-s -w"` 付き)で `web/jailbreak.wasm` をビルドする(`web/wasm_exec.js` は `$(go env GOROOT)/misc/wasm/wasm_exec.js` と同じバージョンにする)
+1. 上記の手順1(`-ldflags="-s -w"` 付き)で `web/jailbreak.wasm` をビルドする(`web/wasm_exec.js` はビルドに使った Go の `$(go env GOROOT)/lib/wasm/wasm_exec.js` と同じものにする。Go を上げたら差し替える)
 2. `gh-pages` ブランチに `web/` の `index.html` / `wasm_exec.js` / `jailbreak.wasm` をコピーしてコミットする
 3. `git push origin gh-pages` で push すると、数分で https://raku2wei.github.io/jailbreak-go/ に反映される
 
