@@ -1,8 +1,8 @@
 module jailbreak
 
-go 1.22.0
+go 1.27.0
 
-toolchain go1.22.6
+toolchain go1.27.1
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.8.9
